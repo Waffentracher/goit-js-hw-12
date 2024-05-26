@@ -1,9 +1,8 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-
+const lightbox = new SimpleLightbox('.gallery a', {});
 function renderImages(images, append = false) {
   const gallery = document.querySelector('.gallery');
-  const lightbox = new SimpleLightbox('.gallery a', {});
 
   if (!append) {
     gallery.innerHTML = '';

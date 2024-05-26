@@ -1,4 +1,4 @@
-import { fetchImages } from './js/pixabay-api.js';
+import { fetchImages, IMAGES_PER_PAGE } from './js/pixabay-api.js';
 import {
   renderImages,
   showMessage,
@@ -8,6 +8,7 @@ import {
 
 let page = 1;
 let queryValue = '';
+let totalHits = 0;
 
 window.addEventListener('DOMContentLoaded', event => {
   const form = document.querySelector('form');
@@ -32,7 +33,11 @@ async function handleSubmit(event) {
   clearGallery();
 
   try {
-    const images = await fetchImages(queryValue, page);
+    const { images, totalHits: fetchedTotalHits } = await fetchImages(
+      queryValue,
+      page
+    );
+    totalHits = fetchedTotalHits;
 
     if (images.length === 0) {
       showMessage(
@@ -43,7 +48,18 @@ async function handleSubmit(event) {
     }
 
     renderImages(images);
-    document.querySelector('.load-more-button').style.display = 'block';
+    if (
+      images.length < IMAGES_PER_PAGE ||
+      page * IMAGES_PER_PAGE >= totalHits
+    ) {
+      document.querySelector('.load-more-button').style.display = 'none';
+      showMessage(
+        "We're sorry, but you've reached the end of search results.",
+        'info'
+      );
+    } else {
+      document.querySelector('.load-more-button').style.display = 'block';
+    }
   } catch (error) {
     console.error('Error processing search:', error);
     showMessage(
@@ -59,9 +75,9 @@ async function handleLoadMore() {
   addLoader();
 
   try {
-    const images = await fetchImages(queryValue, page);
+    const { images } = await fetchImages(queryValue, page);
 
-    if (images.length === 0) {
+    if (images.length === 0 || page * IMAGES_PER_PAGE >= totalHits) {
       showMessage(
         "We're sorry, but you've reached the end of search results.",
         'info'

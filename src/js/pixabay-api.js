@@ -8,11 +8,11 @@ async function fetchImages(query, page) {
 
   try {
     const response = await axios.get(url);
-    return response.data.hits;
+    return { images: response.data.hits, totalHits: response.data.totalHits };
   } catch (error) {
     console.error('Error fetching images:', error);
-    return [];
+    return { images: [], totalHits: 0 };
   }
 }
 
-export { fetchImages };
+export { fetchImages, IMAGES_PER_PAGE };
