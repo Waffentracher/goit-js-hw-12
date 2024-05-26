@@ -8,10 +8,16 @@ async function fetchImages(query, page) {
 
   try {
     const response = await axios.get(url);
-    return { images: response.data.hits, totalHits: response.data.totalHits };
+    return {
+      hits: response.data.hits,
+      totalHits: response.data.totalHits,
+    };
   } catch (error) {
     console.error('Error fetching images:', error);
-    return { images: [], totalHits: 0 };
+    return {
+      hits: [],
+      totalHits: 0,
+    };
   }
 }
 

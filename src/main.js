@@ -33,11 +33,9 @@ async function handleSubmit(event) {
   clearGallery();
 
   try {
-    const { images, totalHits: fetchedTotalHits } = await fetchImages(
-      queryValue,
-      page
-    );
-    totalHits = fetchedTotalHits;
+    const response = await fetchImages(queryValue, page);
+    const images = response.hits;
+    totalHits = response.totalHits;
 
     if (images.length === 0) {
       showMessage(
@@ -48,17 +46,15 @@ async function handleSubmit(event) {
     }
 
     renderImages(images);
-    if (
-      images.length < IMAGES_PER_PAGE ||
-      page * IMAGES_PER_PAGE >= totalHits
-    ) {
+    document.querySelector('.load-more-button').style.display = 'block';
+
+    // Hide the load more button if the number of pages is less than or equal to the current page
+    if (Math.ceil(totalHits / IMAGES_PER_PAGE) <= page) {
       document.querySelector('.load-more-button').style.display = 'none';
       showMessage(
         "We're sorry, but you've reached the end of search results.",
         'info'
       );
-    } else {
-      document.querySelector('.load-more-button').style.display = 'block';
     }
   } catch (error) {
     console.error('Error processing search:', error);
@@ -75,9 +71,10 @@ async function handleLoadMore() {
   addLoader();
 
   try {
-    const { images } = await fetchImages(queryValue, page);
+    const response = await fetchImages(queryValue, page);
+    const images = response.hits;
 
-    if (images.length === 0 || page * IMAGES_PER_PAGE >= totalHits) {
+    if (images.length === 0) {
       showMessage(
         "We're sorry, but you've reached the end of search results.",
         'info'
@@ -87,6 +84,15 @@ async function handleLoadMore() {
     }
 
     renderImages(images, true);
+
+    // Hide the load more button if the number of pages is less than or equal to the current page
+    if (Math.ceil(totalHits / IMAGES_PER_PAGE) <= page) {
+      document.querySelector('.load-more-button').style.display = 'none';
+      showMessage(
+        "We're sorry, but you've reached the end of search results.",
+        'info'
+      );
+    }
 
     const cardHeight = document
       .querySelector('.card')
